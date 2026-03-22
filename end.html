@@ -151,36 +151,10 @@
 </main>
 
 <script src="horror.js"></script>
+<script src="gate.js"></script>
 
 <script>
 'use strict';
-
-// ─── ブラウザバック封鎖 ───────────────────────────────────────────
-// location.replace() でhistory自体にend.htmlを上書きし、
-// signal.htmlのエントリを完全に消す。
-// その後popstateで再push。
-(function lockHistory() {
-  const url = location.href;
-
-  // popstateリスナーを先に登録
-  window.addEventListener('popstate', () => {
-    history.pushState({ locked: true }, '', url);
-    const f = document.getElementById('h-flash');
-    if (!f) return;
-    f.classList.remove('on', 'fade');
-    void f.offsetWidth;
-    f.classList.add('on');
-    setTimeout(() => { f.classList.remove('on'); f.classList.add('fade'); }, 80);
-    setTimeout(() => f.classList.remove('fade'), 600);
-  });
-
-  // signal.htmlのエントリをend.htmlで上書き（戻り先をなくす）
-  // replaceStateで現エントリを置換し、さらに上に積む
-  history.replaceState({ locked: true }, '', url);
-  for (let i = 0; i < 20; i++) {
-    history.pushState({ locked: true }, '', url);
-  }
-})();
 
 // ─── 聴取テキスト定義 ────────────────────────────────────────────
 const LINES = [

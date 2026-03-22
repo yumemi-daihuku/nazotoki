@@ -1,32 +1,25 @@
 'use strict';
 // ════════════════════════════════════════════════════════════════
-// gate.js — end.html 到達後の強制リダイレクト管理
+// gate.js — URLパラメータ方式によるend到達後の封鎖
 //
-// end.html で window.gateSetReached() を呼ぶとフラグを記録。
-// 他ページでは自動的にフラグをチェックし、到達済みなら画面を乗っ取る。
+// 仕組み：
+//   signal.html のリンクを end.html?done=1 にしておく。
+//   ブラウザバックすると signal.html?done=1 に戻る。
+//   gate.js が ?done=1 を検知して画面を乗っ取る。
+//   end.html 自身はチェック対象外。
 // ════════════════════════════════════════════════════════════════
 
 (function () {
-  const FLAG_KEY  = 'NAZOTOKI_REACHED_END';
-  const END_PAGE  = 'end.html';
 
-  // ─── end.html から呼ぶ：フラグをセット ────────────────────────
-  window.gateSetReached = function () {
-    try { localStorage.setItem(FLAG_KEY, '1'); } catch (e) { /* プライベートブラウズ等 */ }
-  };
+  // end.html 自身は何もしない
+  if (location.pathname.endsWith('end.html')) return;
 
-  // ─── end.html 自身では乗っ取りを行わない ──────────────────────
-  if (location.pathname.endsWith(END_PAGE) ||
-      location.pathname.endsWith(END_PAGE.replace('.html', ''))) return;
+  // URLパラメータに done=1 がなければ何もしない
+  const params = new URLSearchParams(location.search);
+  if (params.get('done') !== '1') return;
 
-  // ─── フラグ確認 ────────────────────────────────────────────────
-  let reached = false;
-  try { reached = localStorage.getItem(FLAG_KEY) === '1'; } catch (e) {}
-  if (!reached) return;
-
-  // ─── フラグあり：DOMContentLoaded 後に画面を乗っ取る ──────────
+  // ─── done=1 を検知：画面を乗っ取る ──────────────────────────
   function takeover() {
-    // CSS：乗っ取りオーバーレイ
     const style = document.createElement('style');
     style.textContent = `
       #gate-overlay {
@@ -34,7 +27,7 @@
         background: #000;
         display: flex; flex-direction: column;
         align-items: center; justify-content: center;
-        gap: 32px;
+        gap: 40px; padding: 24px;
         font-family: 'Courier New', monospace;
       }
       #gate-overlay::before {
@@ -50,7 +43,7 @@
         color: #ff2b2b;
         font-size: clamp(13px, 2.5vw, 17px);
         letter-spacing: 3px;
-        line-height: 2.4;
+        line-height: 2.6;
         text-align: center;
         text-shadow: 0 0 16px rgba(255,43,43,0.5);
         opacity: 0;
@@ -68,6 +61,7 @@
         opacity: 0;
         animation: gate-in 1s ease 1.8s forwards;
         transition: background 0.2s, box-shadow 0.2s;
+        position: relative; z-index: 1;
       }
       #gate-btn:hover {
         background: rgba(255,43,43,0.1);
@@ -80,7 +74,6 @@
     `;
     document.head.appendChild(style);
 
-    // HTML：オーバーレイ本体
     const overlay = document.createElement('div');
     overlay.id = 'gate-overlay';
     overlay.innerHTML = `
@@ -88,13 +81,11 @@
         後戻りはできない。<br>
         お前はもう、そこには戻れない。
       </div>
-      <button id="gate-btn" onclick="location.href='end.html'">
+      <button id="gate-btn" onclick="location.href='end.html?done=1'">
         ▸ 最終ファイルへ戻る
       </button>
     `;
     document.body.appendChild(overlay);
-
-    // bodyのスクロールとインタラクションを封鎖
     document.body.style.overflow = 'hidden';
     document.body.style.pointerEvents = 'none';
     overlay.style.pointerEvents = 'all';
