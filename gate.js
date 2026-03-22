@@ -1,35 +1,33 @@
 'use strict';
 // ════════════════════════════════════════════════════════════════
-// gate.js — beforeunload + sessionStorage 方式
+// gate.js — pageshow + sessionStorage 方式
 //
-// 仕組み：
-//   end.html を離れる直前（beforeunload）に sessionStorage にフラグをセット。
-//   他のページは読み込み時にフラグを検知して画面を乗っ取る。
-//   sessionStorage はタブを閉じるまで有効。
+// pageshow はブラウザバックによるキャッシュ復元時にも発火するため
+// 通常の読み込みとブラウザバックの両方を検知できる。
 // ════════════════════════════════════════════════════════════════
 
 (function () {
   const FLAG_KEY = 'NAZOTOKI_END_REACHED';
   const isEnd    = location.pathname.endsWith('end.html');
 
-  // ─── end.html：ページを離れる直前にフラグをセット ─────────────
+  // ─── end.html：表示された瞬間にフラグをセット ─────────────────
   if (isEnd) {
-    // ページ表示と同時にもセット（タブ切替→戻るケースにも対応）
-    try { sessionStorage.setItem(FLAG_KEY, '1'); } catch (e) {}
-
-    window.addEventListener('beforeunload', () => {
+    function setFlag() {
       try { sessionStorage.setItem(FLAG_KEY, '1'); } catch (e) {}
-    });
-    return; // end.html 自身は封鎖しない
+    }
+    setFlag();
+    window.addEventListener('pageshow', setFlag);
+    window.addEventListener('beforeunload', setFlag);
+    return;
   }
 
-  // ─── 他ページ：フラグ確認 ─────────────────────────────────────
-  let reached = false;
-  try { reached = sessionStorage.getItem(FLAG_KEY) === '1'; } catch (e) {}
-  if (!reached) return;
+  // ─── 他ページ：封鎖チェック関数 ──────────────────────────────
+  function checkAndLock() {
+    let reached = false;
+    try { reached = sessionStorage.getItem(FLAG_KEY) === '1'; } catch (e) {}
+    if (!reached) return;
+    if (document.getElementById('gate-overlay')) return; // 二重表示防止
 
-  // ─── フラグあり：DOMContentLoaded 後に画面を乗っ取る ──────────
-  function takeover() {
     const style = document.createElement('style');
     style.textContent = `
       #gate-overlay {
@@ -52,8 +50,7 @@
       #gate-msg {
         color: #ff2b2b;
         font-size: clamp(13px, 2.5vw, 17px);
-        letter-spacing: 3px;
-        line-height: 2.6;
+        letter-spacing: 3px; line-height: 2.6;
         text-align: center;
         text-shadow: 0 0 16px rgba(255,43,43,0.5);
         opacity: 0;
@@ -65,10 +62,8 @@
         border: 1px solid #ff2b2b;
         color: #ff2b2b;
         font-family: 'Courier New', monospace;
-        font-size: 13px;
-        letter-spacing: 3px;
-        padding: 14px 36px;
-        cursor: pointer;
+        font-size: 13px; letter-spacing: 3px;
+        padding: 14px 36px; cursor: pointer;
         opacity: 0;
         animation: gate-in 1s ease 1.8s forwards;
         transition: background 0.2s, box-shadow 0.2s;
@@ -102,10 +97,17 @@
     overlay.style.pointerEvents = 'all';
   }
 
+  // 通常の読み込み時
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', takeover);
+    document.addEventListener('DOMContentLoaded', checkAndLock);
   } else {
-    takeover();
+    checkAndLock();
   }
 
+  // ブラウザバックによるキャッシュ復元時（persisted=true の時がBFCache）
+  window.addEventListener('pageshow', function (e) {
+    checkAndLock();
+  });
+
 })();
+
