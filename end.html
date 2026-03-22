@@ -155,28 +155,34 @@
 <script>
 'use strict';
 
-// ─── ブラウザバック封鎖（強化版） ───────────────────────────────
-// 複数のダミー履歴を積んでおき、popstate発火のたびに再度積み直す
-// これにより何度戻ろうとしても end.html に留まり続ける
+// ─── ブラウザバック封鎖 ───────────────────────────────────────────
+// 1. replaceState で現在のエントリを locked に置き換える
+// 2. さらに pushState で上に積む
+// 3. popstate が発火するたびに即座に再 push
+// → 何回戻っても end.html の locked エントリに当たり続ける
 (function lockHistory() {
-  // 初回：ダミー履歴を5枚積んでバッファを作る
-  for (let i = 0; i < 5; i++) {
-    history.pushState({ locked: true }, '', location.href);
+  const url = location.href;
+
+  // 現在のエントリを置き換え（signal.htmlへの参照を消す）
+  history.replaceState({ locked: true }, '', url);
+
+  // さらに上に複数積む（バッファ）
+  for (let i = 0; i < 10; i++) {
+    history.pushState({ locked: true }, '', url);
   }
 
-  window.addEventListener('popstate', function onPop(e) {
-    // 即座に再push（連打されても追いつく）
-    history.pushState({ locked: true }, '', location.href);
+  window.addEventListener('popstate', () => {
+    // 発火のたびに即再push
+    history.pushState({ locked: true }, '', url);
 
-    // 演出：戻ろうとしたらシェイク（封印後なのでrawFlashで直接叩く）
+    // 赤フラッシュ演出（horrorSealForever後でもh-flashは使える）
     const f = document.getElementById('h-flash');
-    if (f) {
-      f.classList.remove('on', 'fade');
-      void f.offsetWidth;
-      f.classList.add('on');
-      setTimeout(() => { f.classList.remove('on'); f.classList.add('fade'); }, 80);
-      setTimeout(() => f.classList.remove('fade'), 600);
-    }
+    if (!f) return;
+    f.classList.remove('on', 'fade');
+    void f.offsetWidth;
+    f.classList.add('on');
+    setTimeout(() => { f.classList.remove('on'); f.classList.add('fade'); }, 80);
+    setTimeout(() => f.classList.remove('fade'), 600);
   });
 })();
 
