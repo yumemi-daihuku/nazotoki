@@ -3,122 +3,210 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>— 終 —</title>
+  <title>FILE: ARC-███-0001 — 第一回聴取記録</title>
   <style>
     :root {
-      --bg:    #000;
-      --red:   #c0392b;
-      --red-b: #ff2b2b;
-      --text:  #cccccc;
-      --dim:   #333;
-      --font:  'Courier New', monospace;
+      --bg:     #06060a;
+      --sur:    #0d0d15;
+      --border: #1e1e2e;
+      --purple: #7b2fff;
+      --pur-d:  #2a0a5e;
+      --red:    #ff3333;
+      --red-d:  #c0392b;
+      --amber:  #ffb300;
+      --text:   #b8b8d0;
+      --dim:    #3a3a5a;
+      --green:  #00ff41;
+      --font:   'Courier New', monospace;
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       background: var(--bg); color: var(--text);
       font-family: var(--font); min-height: 100vh;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      padding: 40px 24px; overflow: hidden;
+      display: grid; grid-template-rows: auto 1fr; overflow-x: hidden;
     }
     body::before {
       content: ''; position: fixed; inset: 0;
       background: repeating-linear-gradient(0deg,
-        transparent, transparent 2px, rgba(0,0,0,0.25) 2px, rgba(0,0,0,0.25) 4px);
+        transparent, transparent 2px, rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px);
       pointer-events: none; z-index: 999;
     }
-    .bg-splatter {
-      position: fixed; inset: 0;
-      background:
-        radial-gradient(ellipse 60% 40% at 20% 30%, rgba(192,57,43,0.04) 0%, transparent 70%),
-        radial-gradient(ellipse 40% 60% at 80% 70%, rgba(192,57,43,0.03) 0%, transparent 70%);
-      pointer-events: none; z-index: 0;
+
+    /* ─── ヘッダー ─── */
+    header {
+      background: var(--sur); border-bottom: 1px solid var(--border);
+      padding: 14px 32px; display: flex; align-items: center;
+      justify-content: space-between; font-size: 11px; letter-spacing: 2px; color: var(--dim);
     }
-    .content {
-      position: relative; z-index: 1;
-      text-align: center; max-width: 640px;
+    .h-title { color: var(--purple); font-size: 13px; letter-spacing: 3px; }
+    .badge {
+      border: 1px solid var(--green); color: var(--green);
+      padding: 3px 10px; font-size: 10px; letter-spacing: 2px;
     }
-    .stamp {
-      border: 3px solid var(--red); display: inline-block;
-      padding: 12px 32px; margin-bottom: 48px;
-      transform: rotate(-3deg);
-      opacity: 0; animation: stamp-in 0.5s cubic-bezier(0.175,0.885,0.32,1.275) 0.5s forwards;
+
+    /* ─── メイン ─── */
+    main { display: flex; align-items: flex-start; justify-content: center; padding: 48px 24px 80px; }
+    .box { width: 100%; max-width: 640px; display: flex; flex-direction: column; gap: 24px; }
+
+    /* ─── ファイルカード ─── */
+    .file-card {
+      border: 1px solid var(--border); border-left: 3px solid var(--purple);
+      padding: 24px 28px; background: var(--sur);
     }
-    .stamp::before {
-      content: ''; position: absolute; inset: 3px;
-      border: 1px solid rgba(192,57,43,0.3);
+    .f-meta { font-size: 11px; color: var(--dim); letter-spacing: 1px; margin-bottom: 14px; }
+    .f-name { color: var(--text); font-size: 15px; letter-spacing: 2px; margin-bottom: 10px; }
+    .f-desc { font-size: 12px; color: var(--dim); line-height: 1.8; margin-bottom: 20px; }
+
+    /* ─── 聴取記録本文 ─── */
+    .transcript {
+      font-size: 13px; line-height: 2.4; color: var(--text);
     }
-    .stamp-text {
-      color: var(--red); font-size: clamp(28px,5vw,42px);
-      letter-spacing: 8px; font-weight: bold;
-      text-shadow: 0 0 20px rgba(192,57,43,0.4);
+    .transcript br { display: block; content: ''; margin-bottom: 0; }
+
+    /* タイプライター演出：行ごとに遅延フェードイン */
+    .line {
+      display: block;
+      opacity: 0;
+      transform: translateY(4px);
+      animation: linein 0.5s ease forwards;
     }
-    .end-title {
-      font-size: clamp(13px,2.5vw,17px); letter-spacing: 6px;
-      color: var(--dim); margin-bottom: 40px;
-      opacity: 0; animation: fi 1s ease 1s forwards;
+    .line.gap { margin-top: 16px; }
+
+    /* 最後の一文だけ赤で強調 */
+    .line.final {
+      color: var(--red);
+      text-shadow: 0 0 10px rgba(255,51,51,0.3);
+      margin-top: 8px;
     }
-    .end-body {
-      line-height: 2.4; font-size: 14px; color: var(--text);
-      opacity: 0; animation: fi 1s ease 1.5s forwards;
-      text-align: left; border-left: 2px solid var(--dim);
-      padding-left: 24px; margin-bottom: 48px;
+
+    /* ─── フッター ─── */
+    .foot {
+      font-size: 10px; letter-spacing: 2px; color: var(--dim);
+      text-align: center; padding-top: 16px;
+      border-top: 1px dashed var(--border);
+      opacity: 0; animation: linein 0.5s ease forwards;
     }
-    .end-body p { margin-bottom: 16px; }
+
+    /* ─── クレジット ─── */
     .credits {
       font-size: 11px; letter-spacing: 2px; color: var(--dim);
-      opacity: 0; animation: fi 1s ease 2.5s forwards; line-height: 2; margin-bottom: 32px;
+      line-height: 2; text-align: center;
+      opacity: 0; animation: linein 0.5s ease forwards;
     }
+
     .restart {
       display: inline-block; color: var(--dim); text-decoration: none;
       font-size: 11px; letter-spacing: 3px;
       border-bottom: 1px solid var(--dim); padding-bottom: 2px;
-      opacity: 0; animation: fi 1s ease 3s forwards;
+      opacity: 0; animation: linein 0.5s ease forwards;
       transition: color 0.2s, border-color 0.2s;
+      text-align: center;
     }
     .restart:hover { color: var(--text); border-color: var(--text); }
+    .center { text-align: center; }
 
-    @keyframes stamp-in {
-      from { opacity:0; transform:rotate(-3deg) scale(2); }
-      to   { opacity:1; transform:rotate(-3deg) scale(1); }
-    }
-    @keyframes fi {
-      from { opacity:0; transform:translateY(10px); }
-      to   { opacity:1; transform:translateY(0); }
+    @keyframes linein {
+      to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
 <body>
-<div class="bg-splatter"></div>
-<div class="content">
-  <div class="stamp"><div class="stamp-text">解明</div></div>
-  <div class="end-title">— すべての謎は解かれた —</div>
-  <div class="end-body">
-    <p>
-      このサイトは、報告書ではない。
-    </p>
-    <p>
-      「続きを読め」「正しい道だ」「もうすぐだ」——<br>
-      あの声は、お前を助けていたのではない。<br>
-      <strong style="color:var(--red-b);">お前を、次のサイトまで誘導していた。</strong>
-    </p>
-    <p>
-      朝倉も、西村も、大沼も、水口も、荒木も——<br>
-      全員、同じようにここまで辿り着いた。<br>
-      全員、同じように「あと少しだ」と言われた。<br>
-      そして、全員が次のリンクを踏んだ。
-    </p>
-    <p style="color:var(--dim);">
-      お前が今見ているこの画面が、そのサイトだ。<br>
-      お前はすでに、触れている。
-    </p>
+
+<header>
+  <span class="h-title">ARCHIVE SYSTEM — RECORD</span>
+  <span>FILE: ARC-███-0001</span>
+  <div class="badge">▶ 復号済み</div>
+</header>
+
+<main>
+  <div class="box">
+
+    <div class="file-card">
+      <div class="f-meta">FILE_ID: ARC-███-0001 &nbsp;|&nbsp; CLASS: EYES_ONLY &nbsp;|&nbsp; 第一回聴取記録</div>
+      <div class="f-name">朝倉 誠 — 第一回聴取記録</div>
+      <div class="f-desc">
+        ※ 本記録は朝倉 誠の失踪前、初回接触から3日後に実施された聴取である。<br>
+        ※ 朝倉はこの聴取の翌週に失踪。以降、消息不明。
+      </div>
+
+      <!-- 聴取本文：各行をJSで遅延表示 -->
+      <div class="transcript" id="transcript"></div>
+    </div>
+
+    <div class="foot" id="foot" style="animation-delay:999s;">
+      このファイルへのアクセスは記録されました。
+    </div>
+
+    <div class="credits" id="credits" style="animation-delay:999s;">
+      <div>CREATED BY &nbsp;[あなたの名前]</div>
+      <div>SCENARIO BY &nbsp;[あなたの名前]</div>
+      <div style="margin-top:8px; font-size:10px; color:#1a1a1a;">── プレイしてくれてありがとうございました ──</div>
+    </div>
+
+    <div class="center">
+      <a href="index.html" class="restart" id="restart" style="animation-delay:999s;">▸ 最初から読み直す</a>
+    </div>
+
   </div>
-  <div class="credits">
-    <div>CREATED BY &nbsp;[あなたの名前]</div>
-    <div>SCENARIO BY &nbsp;[あなたの名前]</div>
-    <div style="margin-top:8px;font-size:10px;color:#222;">── プレイしてくれてありがとうございました ──</div>
-  </div>
-  <a href="index.html" class="restart">▸ 最初から読み直す</a>
-</div>
+</main>
+
+<script src="horror.js"></script>
+
+<script>
+'use strict';
+
+// ─── 聴取テキスト定義 ────────────────────────────────────────────
+// { text, gap: 前に空行を入れるか, final: 赤強調か, delay: ms }
+const LINES = [
+  { text: '調査員：本日はお時間をいただきありがとうございます。' },
+  { text: '調査員：まず、異変に気づいたのはいつ頃のことですか。' },
+  { text: '朝倉：……3日前、です。夜中に。', gap: true },
+  { text: '調査員：具体的にどのような異変でしたか。' },
+  { text: '朝倉：画面の中に、何かがいた。最初は気のせいだと思ったんですけど。', gap: true },
+  { text: '調査員：気のせいではないと感じたのはなぜですか。' },
+  { text: '朝倉：……目が合ったので。', gap: true },
+  { text: '調査員：その後、日常生活に支障はありましたか。' },
+  { text: '朝倉：鏡が、怖くなりました。自分じゃないものが映る気がして。', gap: true },
+  { text: '朝倉：夢もよく見ます。暗い場所にいる夢。でも暗くはないんです。', gap: true },
+  { text: '調査員：暗くはない、というのは？' },
+  { text: '朝倉：なんというか……光はないのに、見える。そういう場所。', gap: true },
+  { text: '調査員：わかりました。最後に一点だけ確認させてください。' },
+  { text: '調査員：どういったサイトを見て、異変が起きたんですか。', gap: true },
+  { text: '朝倉：えーっと……名前は……', gap: true },
+  { text: '朝倉：「第七報告書　─　未分類事案」', final: true },
+];
+
+// ─── 遅延表示 ────────────────────────────────────────────────────
+const BASE_DELAY  = 800;   // 最初の行が出るまでの初期遅延(ms)
+const LINE_INTERVAL = 700; // 行と行の間隔(ms)
+
+const container = document.getElementById('transcript');
+let totalDelay = BASE_DELAY;
+
+LINES.forEach((line, i) => {
+  const span = document.createElement('span');
+  span.className = 'line' +
+    (line.gap   ? ' gap'   : '') +
+    (line.final ? ' final' : '');
+  span.textContent = line.text;
+  span.style.animationDelay = totalDelay + 'ms';
+  container.appendChild(span);
+
+  totalDelay += LINE_INTERVAL;
+  // 空行の後は少し長め
+  if (line.gap) totalDelay += 200;
+});
+
+// ─── 最後の行が出た後にフッター・クレジット・リスタートを表示 ──
+const afterDelay = totalDelay + 1200;
+
+['foot', 'credits', 'restart'].forEach((id, idx) => {
+  const el = document.getElementById(id);
+  if (el) {
+    el.style.animationDelay = (afterDelay + idx * 400) + 'ms';
+  }
+});
+</script>
+
 </body>
 </html>
