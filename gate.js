@@ -85,7 +85,7 @@
     overlay.innerHTML = `
       <div id="gate-msg">
         後戻りはできない。<br>
-        お前はもう、そこには戻れない。
+        お前はもう、ここには戻れない。
       </div>
       <button id="gate-btn" onclick="location.href='end.html'">
         ▸ 最終ファイルへ戻る

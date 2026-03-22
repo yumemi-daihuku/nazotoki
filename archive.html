@@ -162,6 +162,7 @@
         調査員：彼らが消えた場所について、何か心当たりは。<br>
         大沼：……一度だけ、夢で見た。真っ暗な場所だった。<br>
         大沼：でも、暗くはなかった。なんというか……黄泉、みたいな。<br>
+        大沼：ローマ字で書けば「YOMI」。そういう場所の名前が、ずっと頭に残ってる。<br>
         大沼：死んでいるわけじゃないのに、生きている場所でもない。そういう場所。<br><br>
         調査員：最後に。あなたは今も、あれが何だったと思いますか。<br>
         大沼：わからない。でも一つだけ言えることがある。<br>
@@ -176,7 +177,7 @@
                spellcheck="false" placeholder="キーワードを入力...">
       </div>
       <div class="hint-text" id="hint">
-        ……流田が夢で見た「場所」の名前だ。
+        ……大沼が夢で見た「場所」の名前だ。ローマ字で。
       </div>
       <button class="pw-btn" onclick="checkPW()">DECRYPT</button>
       <div class="msg" id="msg"></div>
@@ -239,7 +240,7 @@
 
       if (fails >= 3) {
         hint.classList.add('show');
-        window.horrorShowBottom('……流田が夢で見た「場所」の名前だ。', 5000);
+        window.horrorShowBottom('……大沼が夢で見た「場所」の名前だ。ローマ字で。', 5000);
       }
     }
   }

@@ -147,8 +147,9 @@
     </div>
 
     <div class="credits" id="credits" style="animation-delay:999s;">
-      <div>CREATED BY &nbsp;[あなたの名前]</div>
-      <div>SCENARIO BY &nbsp;[あなたの名前]</div>
+      <div>CREATED BY &nbsp;カイロス</div>
+      <div>SCENARIO BY &nbsp;カイロス</div>
+      <div style="margin-top:8px; font-size:10px; color:#3a3a5a;">サイトの作成にAIを使用しています</div>
       <div style="margin-top:8px; font-size:10px; color:#1a1a1a;">── プレイしてくれてありがとうございました ──</div>
     </div>
 
@@ -182,7 +183,8 @@ const LINES = [
   { text: '調査員：わかりました。最後に一点だけ確認させてください。' },
   { text: '調査員：どういったサイトを見て、異変が起きたんですか。', gap: true },
   { text: '朝倉：えーっと……名前は……', gap: true },
-  { text: '朝倉：「第七報告書　─　未分類事案」', final: true },
+  // pre_gap: この行の前にさらに長い間を入れる
+  { text: '朝倉：「第七報告書　─　未分類事案」', final: true, pre_gap: 1800 },
 ];
 
 // ─── キャラクター独白テキスト（赤フラッシュ後に順番に表示） ──────
@@ -205,6 +207,9 @@ const container = document.getElementById('transcript');
 let totalDelay = BASE_DELAY;
 
 LINES.forEach((line, i) => {
+  // pre_gap があればその分先に遅延を積む
+  if (line.pre_gap) totalDelay += line.pre_gap;
+
   const span = document.createElement('span');
   span.className = 'line' +
     (line.gap   ? ' gap'   : '') +
