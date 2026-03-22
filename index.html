@@ -256,7 +256,7 @@
     <div class="body-text">
       <p>
         以下は本事案の関与者
-        <span class="digit-reveal" id="d4" id="report-count">9</span>
+        <span id="report-count" style="color:var(--red-b); font-weight:bold;">8</span>
         件の報告のうち、身元が確認された
         <span style="color:var(--red-b); font-weight:bold;">7名</span>
         の一覧である。
@@ -391,21 +391,13 @@ const digitObserver = new IntersectionObserver(entries => {
 (function syncReportCount() {
   const el = document.getElementById('report-count');
   if (!el) return;
-
-  // MutationObserver で header-viewer の変化を監視
   const viewerEl = document.getElementById('header-viewer');
   if (!viewerEl) return;
 
   function update() {
     const match = viewerEl.textContent.match(/\d+/);
     if (!match) return;
-    const viewerCount = parseInt(match[0], 10);
-    const total = 7 + viewerCount;
-    // digit-reveal の .visible 状態を維持しつつテキストだけ更新
-    el.textContent = total;
-    if (!el.classList.contains('visible')) {
-      el.classList.add('visible');
-    }
+    el.textContent = 7 + parseInt(match[0], 10);
   }
 
   update();
