@@ -156,7 +156,6 @@
 'use strict';
 
 // ─── 聴取テキスト定義 ────────────────────────────────────────────
-// { text, gap: 前に空行を入れるか, final: 赤強調か, delay: ms }
 const LINES = [
   { text: '調査員：本日はお時間をいただきありがとうございます。' },
   { text: '調査員：まず、異変に気づいたのはいつ頃のことですか。' },
@@ -176,9 +175,21 @@ const LINES = [
   { text: '朝倉：「第七報告書　─　未分類事案」', final: true },
 ];
 
+// ─── キャラクター独白テキスト（赤フラッシュ後に順番に表示） ──────
+const MONOLOGUE = [
+  'そうだ。全部、俺がやった。',
+  'このサイトを作ったのも。',
+  '朝倉を、西野を、荒木を、流田を、結城を——引き込んだのも。',
+  'お前たちに「続きを読め」と言い続けたのも。',
+  '……全部、俺だ。',
+  'お前も、もう同じだ。',
+  'ここに来た時点で、終わっていた。',
+];
+
 // ─── 遅延表示 ────────────────────────────────────────────────────
-const BASE_DELAY  = 800;   // 最初の行が出るまでの初期遅延(ms)
-const LINE_INTERVAL = 700; // 行と行の間隔(ms)
+const BASE_DELAY    = 1000;  // 最初の行が出るまでの初期遅延(ms)
+const LINE_INTERVAL = 1100;  // 行と行の間隔(ms)
+const GAP_EXTRA     = 400;   // gap行の追加遅延(ms)
 
 const container = document.getElementById('transcript');
 let totalDelay = BASE_DELAY;
@@ -193,18 +204,40 @@ LINES.forEach((line, i) => {
   container.appendChild(span);
 
   totalDelay += LINE_INTERVAL;
-  // 空行の後は少し長め
-  if (line.gap) totalDelay += 200;
+  if (line.gap) totalDelay += GAP_EXTRA;
 });
 
-// ─── 最後の行が出た後にフッター・クレジット・リスタートを表示 ──
-const afterDelay = totalDelay + 1200;
+// ─── 最後の行（final）が表示された後の演出 ───────────────────────
+// 1. 赤フラッシュ × 3回
+// 2. キャラクター独白を画面下に順番に表示
+// 3. フッター・クレジット・リスタートを表示
+
+const FINAL_LINE_DELAY = totalDelay; // finalの行が出た時刻
+
+// 赤フラッシュ（3回）
+const FLASH_INTERVAL = 500;
+for (let i = 0; i < 3; i++) {
+  setTimeout(() => {
+    if (window.horrorShake) window.horrorShake(true);
+  }, FINAL_LINE_DELAY + 600 + i * FLASH_INTERVAL);
+}
+
+// キャラクター独白を画面下に順番に表示
+const MONO_START = FINAL_LINE_DELAY + 600 + 3 * FLASH_INTERVAL + 800;
+const MONO_INTERVAL = 2800;
+
+MONOLOGUE.forEach((text, i) => {
+  setTimeout(() => {
+    if (window.horrorShowBottom) window.horrorShowBottom(text, MONO_INTERVAL - 200);
+  }, MONO_START + i * MONO_INTERVAL);
+});
+
+// フッター・クレジット・リスタートは独白が全部終わった後
+const afterDelay = MONO_START + MONOLOGUE.length * MONO_INTERVAL + 1200;
 
 ['foot', 'credits', 'restart'].forEach((id, idx) => {
   const el = document.getElementById(id);
-  if (el) {
-    el.style.animationDelay = (afterDelay + idx * 400) + 'ms';
-  }
+  if (el) el.style.animationDelay = (afterDelay + idx * 500) + 'ms';
 });
 </script>
 
