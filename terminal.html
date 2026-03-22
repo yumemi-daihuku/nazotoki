@@ -130,7 +130,7 @@
 
 <script>
   const CONFIG = {
-    CORRECT_CODE: '105',
+    CORRECT_CODE: 'ANOMALY',
     NEXT_PAGE:    'archive.html',
   };
   const BOOT = [
@@ -192,7 +192,7 @@
     inp.value = '';
     inp.disabled = true;
 
-    if (val === CONFIG.CORRECT_CODE) {
+    if (val.toUpperCase() === CONFIG.CORRECT_CODE) {
       document.getElementById('ov-ok').style.display = 'flex';
       setTimeout(() => addLog('認証成功。', 'ok'), 300);
       setTimeout(() => addLog('次のセクションへアクセスを許可します。', 'ok'), 600);
@@ -210,7 +210,7 @@
         window.horrorShowBottom(taunt);
         // 3回失敗でヒント
         if (fails >= 3) {
-          const hint = '……報告書に数字が散らばっている。それらを掛け合わせれば開く。7×5×3だ。';
+          const hint = '……報告書の被害者一覧を見ろ。ローマ字表記の、先頭の文字を順に並べろ。';
           addLog(hint, 'warn');
           window.horrorShowBottom(hint, 5000);
         }

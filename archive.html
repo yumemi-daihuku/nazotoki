@@ -142,8 +142,9 @@
     <div class="file-card">
       <div class="f-meta">FILE_ID: ARC-███-0071 &nbsp;|&nbsp; CLASS: EYES_ONLY</div>
       <div class="f-name">流田 千尋 — 第三回聴取記録</div>
-      <div class="f-desc">このファイルは暗号化されています。解読キーを知る者のみが閲覧できます。</div>
-      <div class="doc-preview" id="preview">
+      <div class="f-desc">復号済み。以下は全文。</div>
+      <!-- 最初からぼかし無しで表示 -->
+      <div class="doc-preview unlocked" id="preview">
         調査員：では、改めて聞かせてください。あの夜、最初に何が起きましたか。<br>
         流田：画面の中に、何かがいた。最初は一瞬だけだった。でも日が経つにつれて、長くなっていった。<br><br>
         調査員：朝倉さんや西村さんが失踪した夜のことは覚えていますか。<br>
@@ -153,29 +154,34 @@
         調査員：あなたは呼ばれなかった？<br>
         流田：……呼ばれた。でも、私は答えなかった。<br>
         流田：結城くんも、答えなかった。だから私たちは残った。<br><br>
+        調査員：彼らが消えた場所について、何か心当たりは。<br>
+        流田：……一度だけ、夢で見た。真っ暗な場所だった。<br>
+        流田：でも、暗くはなかった。なんというか……黄泉、みたいな。<br>
+        流田：死んでいるわけじゃないのに、生きている場所でもない。そういう場所。<br><br>
         調査員：最後に。あなたは今も、あれが何だったと思いますか。<br>
         流田：わからない。でも一つだけ言えることがある。<br>
-        流田：<strong>彼ら全員の名が、答えを示している。</strong>報告書の一覧を見ろ。ローマ字で。順番通りに。
+        流田：<strong>"頭"がおかしくなったのかと思った。</strong>
       </div>
     </div>
 
     <div class="pw-sec">
-      <div class="pw-lbl">▎ 暗号化ファイル — 解読キーを入力</div>
+      <div class="pw-lbl">▎ 付属ファイル — 解読キーを入力</div>
       <div class="pw-wrap">
         <input id="pw-input" type="text" autocomplete="off"
                spellcheck="false" placeholder="キーワードを入力...">
       </div>
       <div class="hint-text" id="hint">
-        ……報告書に戻れ。被害者一覧のローマ字表記、先頭の文字を順に並べろ。
+        ……流田が夢で見た「場所」の名前だ。
       </div>
       <button class="pw-btn" onclick="checkPW()">DECRYPT</button>
       <div class="msg" id="msg"></div>
       <div class="reveal" id="reveal">
         <div style="color:var(--green);font-size:10px;letter-spacing:3px;margin-bottom:12px;">▶ 復号成功</div>
-        <p>ここに解錠後に表示するストーリーや次の謎へのヒントを書いてください。</p>
+        <p>付属音声ファイルの解析に成功した。</p>
         <br>
         <p style="color:var(--dim)">
-          例：「彼女が最後に残した言葉は、周波数の中に隠されている。<br>その信号を探せ。」
+          失踪した者たちが発し続けている信号が記録されている。<br>
+          解読すれば、彼らがどこにいるかがわかるはずだ。
         </p>
         <a href="signal.html" class="next-link">▸ SIGNAL_DATA.wav を解析する →</a>
       </div>
@@ -186,7 +192,7 @@
 <script src="horror.js"></script>
 
 <script>
-  const CONFIG = { ANSWERS: ['ANOMALY', 'anomaly'] };
+  const CONFIG = { ANSWERS: ['YOMI', 'yomi', '黄泉'] };
 
   // 煽りセリフ——間違いを指摘しつつ正解に誘導する
   const TAUNTS = [
@@ -227,7 +233,7 @@
 
       if (fails >= 3) {
         hint.classList.add('show');
-        window.horrorShowBottom('……報告書に戻れ。被害者一覧のローマ字の頭文字を順に並べろ。', 5000);
+        window.horrorShowBottom('……流田が夢で見た「場所」の名前だ。', 5000);
       }
     }
   }
