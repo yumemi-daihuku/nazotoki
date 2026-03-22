@@ -30,7 +30,6 @@
         transparent, transparent 2px, rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px);
       pointer-events: none; z-index: 999;
     }
-
     header {
       background: var(--sur); border-bottom: 1px solid var(--border);
       padding: 14px 32px; display: flex; align-items: center;
@@ -43,14 +42,8 @@
       animation: bb 2s infinite;
     }
     @keyframes bb { 0%,100%{border-color:var(--red)} 50%{border-color:transparent} }
-
-    main {
-      display: flex; align-items: center; justify-content: center;
-      padding: 48px 24px;
-    }
+    main { display: flex; align-items: center; justify-content: center; padding: 48px 24px; }
     .box { width: 100%; max-width: 600px; display: flex; flex-direction: column; gap: 24px; }
-
-    /* ─── ファイルカード ─── */
     .file-card {
       border: 1px solid var(--border); border-left: 3px solid var(--purple);
       padding: 24px 28px; background: var(--sur); position: relative; overflow: hidden;
@@ -71,11 +64,7 @@
       filter: blur(3px); user-select: none; transition: filter 0.7s;
     }
     .doc-preview.unlocked { filter: none; color: var(--text); }
-
-    /* ─── PWフォーム ─── */
-    .pw-sec {
-      border: 1px solid var(--border); padding: 28px; background: var(--sur);
-    }
+    .pw-sec { border: 1px solid var(--border); padding: 28px; background: var(--sur); }
     .pw-lbl { font-size: 11px; letter-spacing: 3px; color: var(--dim); margin-bottom: 20px; }
     .pw-wrap { display: flex; align-items: center; gap: 0; }
     .pw-wrap::before {
@@ -93,14 +82,12 @@
     #pw-input.err { border-bottom-color: var(--red); animation: shk 0.3s; }
     #pw-input.ok  { border-bottom-color: var(--green); }
     @keyframes shk { 0%,100%{transform:translateX(0)} 25%,75%{transform:translateX(-5px)} 50%{transform:translateX(5px)} }
-
     .hint-text {
       margin-top: 14px; font-size: 11px; color: var(--dim);
       line-height: 1.8; padding: 10px; border-left: 2px solid var(--pur-d);
       display: none;
     }
     .hint-text.show { display: block; }
-
     .pw-btn {
       margin-top: 16px; background: transparent;
       border: 1px solid var(--purple); color: var(--purple);
@@ -109,12 +96,9 @@
       transition: background 0.2s, box-shadow 0.2s, color 0.2s;
     }
     .pw-btn:hover { background: var(--pur-d); color: #fff; box-shadow: 0 0 14px rgba(123,47,255,0.3); }
-
     .msg { margin-top: 14px; font-size: 12px; letter-spacing: 1px; min-height: 18px; }
     .msg.err { color: var(--red); }
     .msg.ok  { color: var(--green); }
-
-    /* ─── 解錠後 ─── */
     .reveal {
       display: none; margin-top: 24px; padding: 20px;
       border: 1px solid var(--green); background: rgba(0,255,65,0.03);
@@ -122,7 +106,6 @@
     }
     .reveal.show { display: block; }
     @keyframes fi { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
-
     .next-link {
       display: inline-block; margin-top: 18px;
       color: var(--green); text-decoration: none;
@@ -134,6 +117,19 @@
   </style>
 </head>
 <body>
+
+<script>
+  window.HORROR_CONFIG = {
+    blackoutMsg: 'ファイルを開こうとしている。\n……中身は、あなたを待っていた。',
+    blackoutDelay: 60000,
+    closeMessages: [
+      'まだ復号が終わっていない。',
+      'キーを知っているはずだ。',
+      '……どこへ行く。',
+    ],
+  };
+</script>
+
 <header>
   <span class="h-title">ARCHIVE SYSTEM — RESTRICTED</span>
   <span>NODE: ██-████</span>
@@ -141,7 +137,6 @@
 </header>
 <main>
   <div class="box">
-
     <div class="file-card">
       <div class="f-meta">FILE_ID: ARC-███-0071 &nbsp;|&nbsp; CLASS: EYES_ONLY</div>
       <div class="f-name">「████の証言記録」— 第三回聴取</div>
@@ -154,7 +149,6 @@
         ← ここにあなたのストーリーを書いてください
       </div>
     </div>
-
     <div class="pw-sec">
       <div class="pw-lbl">▎ 暗号化ファイル — 解読キーを入力</div>
       <div class="pw-wrap">
@@ -166,7 +160,6 @@
       </div>
       <button class="pw-btn" onclick="checkPW()">DECRYPT</button>
       <div class="msg" id="msg"></div>
-
       <div class="reveal" id="reveal">
         <div style="color:var(--green);font-size:10px;letter-spacing:3px;margin-bottom:12px;">▶ 復号成功</div>
         <p>ここに解錠後に表示するストーリーや次の謎へのヒントを書いてください。</p>
@@ -177,16 +170,13 @@
         <a href="signal.html" class="next-link">▸ SIGNAL_DATA.wav を解析する →</a>
       </div>
     </div>
-
   </div>
 </main>
 
-<script>
-  // ─── 設定：パスワード ────────────────────────────────────────────
-  const CONFIG = {
-    ANSWERS: ['kagami', 'かがみ', '鏡'],  // ← 自由に変更
-  };
+<script src="horror.js"></script>
 
+<script>
+  const CONFIG = { ANSWERS: ['kagami', 'かがみ', '鏡'] };
   let fails = 0;
   function checkPW() {
     const inp = document.getElementById('pw-input');
@@ -196,9 +186,7 @@
     const preview = document.getElementById('preview');
     const val = inp.value.trim().toLowerCase();
     if (!val) return;
-
-    const answers = CONFIG.ANSWERS.map(a => a.toLowerCase());
-    if (answers.includes(val)) {
+    if (CONFIG.ANSWERS.map(a => a.toLowerCase()).includes(val)) {
       inp.classList.add('ok'); inp.disabled = true;
       msg.textContent = '復号完了。ファイルのロックが解除されました。';
       msg.className = 'msg ok';
@@ -213,7 +201,6 @@
       if (fails >= 3) hint.classList.add('show');
     }
   }
-
   document.getElementById('pw-input')
     .addEventListener('keydown', e => { if (e.key === 'Enter') checkPW(); });
 </script>

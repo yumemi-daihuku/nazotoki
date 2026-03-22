@@ -6,14 +6,14 @@
   <title>TERMINAL — アクセス制限</title>
   <style>
     :root {
-      --bg:       #000;
-      --green:    #00ff41;
-      --green-d:  #003b10;
-      --green-m:  #00802a;
-      --red:      #ff2b2b;
-      --amber:    #ffb300;
-      --dim:      #004d15;
-      --font:     'Courier New', monospace;
+      --bg:      #000;
+      --green:   #00ff41;
+      --green-d: #003b10;
+      --green-m: #00802a;
+      --red:     #ff2b2b;
+      --amber:   #ffb300;
+      --dim:     #004d15;
+      --font:    'Courier New', monospace;
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -34,8 +34,6 @@
       background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.9) 100%);
       pointer-events: none; z-index: 99;
     }
-
-    /* ─── ターミナルウィンドウ ─── */
     .terminal {
       width: 100%; max-width: 720px;
       border: 1px solid var(--green-m);
@@ -51,24 +49,18 @@
     .btn-r { background: var(--red); }
     .btn-y { background: var(--amber); }
     .btn-g { background: var(--green); animation: blink 2s infinite; }
-
     .screen {
       padding: 28px 32px; min-height: 400px;
       background: rgba(0,5,0,0.97);
       font-size: 14px; line-height: 2;
     }
-
-    /* ─── ログ行 ─── */
     .log { margin-bottom: 2px; opacity: 0; transform: translateY(3px); animation: fi 0.3s ease forwards; }
     .ok   { color: var(--green); }
     .err  { color: var(--red); }
     .warn { color: var(--amber); }
     .sys  { color: #444; font-size: 12px; }
     .dim  { color: var(--dim); }
-
     @keyframes fi { to { opacity:1; transform:translateY(0); } }
-
-    /* ─── 進捗バー ─── */
     .prog { height: 2px; background: var(--green-d); overflow: hidden; }
     .prog::after {
       content: ''; display: block; height: 100%;
@@ -76,8 +68,6 @@
       animation: prog 2s linear forwards;
     }
     @keyframes prog { from{width:0} to{width:100%} }
-
-    /* ─── 入力行 ─── */
     .prompt { display: flex; align-items: center; gap: 10px; margin-top: 24px; }
     .prompt-sign { color: var(--green); font-size: 16px; }
     #code-input {
@@ -95,8 +85,6 @@
       transition: background 0.2s, box-shadow 0.2s;
     }
     .submit-btn:hover { background: var(--green-d); box-shadow: 0 0 10px rgba(0,255,65,0.2); }
-
-    /* ─── 成功・失敗オーバーレイ ─── */
     .overlay {
       position: absolute; inset: 0; display: none;
       align-items: center; justify-content: center;
@@ -111,6 +99,20 @@
   </style>
 </head>
 <body>
+
+<!-- このページ独自の暗転メッセージを設定 -->
+<script>
+  window.HORROR_CONFIG = {
+    blackoutMsg: '認証を試みている。\n……こちらも、あなたを認証した。',
+    blackoutDelay: 60000,
+    closeMessages: [
+      '認証が完了していない。',
+      '逃げても扉は開かない。',
+      'コードを入力しろ。',
+    ],
+  };
+</script>
+
 <div class="terminal" id="terminal">
   <div class="titlebar">
     <div class="btn btn-r"></div>
@@ -124,15 +126,14 @@
   <div class="overlay ng" id="ov-ng">✕ ACCESS DENIED</div>
 </div>
 
+<!-- 共通ホラー演出（設定の後に読み込む） -->
+<script src="horror.js"></script>
+
 <script>
-  // ─── 設定 ─────────────────────────────────────────────────────────
-  // index.html の数字の積：7 × 5 × 3 × 9 = 945
   const CONFIG = {
-    CORRECT_CODE: '945',      // ← index.html の積に合わせる
+    CORRECT_CODE: '945',
     NEXT_PAGE:    'archive.html',
   };
-
-  // ─── ブートログ ──────────────────────────────────────────────────
   const BOOT = [
     { text: 'システム起動中…',             cls: 'dim',  ms: 200  },
     { text: 'セキュリティモジュール: OK',   cls: 'ok',   ms: 700  },
@@ -145,9 +146,7 @@
     { text: '認証コードが必要です。',       cls: 'ok',   ms: 2800 },
     { text: '─────────────────────────────',cls: 'sys',  ms: 3100 },
   ];
-
   const screen = document.getElementById('screen');
-
   function addLog(text, cls) {
     const el = document.createElement('div');
     el.className = `log ${cls}`;
@@ -155,7 +154,6 @@
     screen.appendChild(el);
     screen.scrollTop = screen.scrollHeight;
   }
-
   function showPrompt() {
     const row = document.createElement('div');
     row.className = 'prompt';
@@ -171,14 +169,8 @@
     inp.focus();
     inp.addEventListener('keydown', e => { if (e.key === 'Enter') check(); });
   }
-
-  // ─── ブートシーケンス ────────────────────────────────────────────
-  BOOT.forEach(({ text, cls, ms }) =>
-    setTimeout(() => addLog(text, cls), ms)
-  );
+  BOOT.forEach(({ text, cls, ms }) => setTimeout(() => addLog(text, cls), ms));
   setTimeout(showPrompt, 3300);
-
-  // ─── コード検証 ──────────────────────────────────────────────────
   let fails = 0;
   function check() {
     const inp = document.getElementById('code-input');
@@ -186,19 +178,16 @@
     const val = inp.value.trim();
     addLog('> ' + val, 'ok');
     inp.value = ''; inp.disabled = true;
-
     if (val === CONFIG.CORRECT_CODE) {
-      const ov = document.getElementById('ov-ok');
-      ov.style.display = 'flex';
+      document.getElementById('ov-ok').style.display = 'flex';
       setTimeout(() => addLog('認証成功。', 'ok'), 300);
       setTimeout(() => addLog('次のセクションへアクセスを許可します。', 'ok'), 600);
       setTimeout(() => { window.location.href = CONFIG.NEXT_PAGE; }, 2400);
     } else {
       fails++;
-      const ov = document.getElementById('ov-ng');
-      ov.style.display = 'flex';
+      document.getElementById('ov-ng').style.display = 'flex';
       setTimeout(() => {
-        ov.style.display = 'none';
+        document.getElementById('ov-ng').style.display = 'none';
         addLog(`認証失敗 [${fails}回目]`, 'err');
         if (fails >= 3) addLog('ヒント: 報告書の数字を集めよ。それらの積だ。', 'warn');
         inp.disabled = false; inp.focus();
