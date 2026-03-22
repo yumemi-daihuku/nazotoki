@@ -1,24 +1,34 @@
 'use strict';
 // ════════════════════════════════════════════════════════════════
-// gate.js — URLパラメータ方式によるend到達後の封鎖
+// gate.js — beforeunload + sessionStorage 方式
 //
 // 仕組み：
-//   signal.html のリンクを end.html?done=1 にしておく。
-//   ブラウザバックすると signal.html?done=1 に戻る。
-//   gate.js が ?done=1 を検知して画面を乗っ取る。
-//   end.html 自身はチェック対象外。
+//   end.html を離れる直前（beforeunload）に sessionStorage にフラグをセット。
+//   他のページは読み込み時にフラグを検知して画面を乗っ取る。
+//   sessionStorage はタブを閉じるまで有効。
 // ════════════════════════════════════════════════════════════════
 
 (function () {
+  const FLAG_KEY = 'NAZOTOKI_END_REACHED';
+  const isEnd    = location.pathname.endsWith('end.html');
 
-  // end.html 自身は何もしない
-  if (location.pathname.endsWith('end.html')) return;
+  // ─── end.html：ページを離れる直前にフラグをセット ─────────────
+  if (isEnd) {
+    // ページ表示と同時にもセット（タブ切替→戻るケースにも対応）
+    try { sessionStorage.setItem(FLAG_KEY, '1'); } catch (e) {}
 
-  // URLパラメータに done=1 がなければ何もしない
-  const params = new URLSearchParams(location.search);
-  if (params.get('done') !== '1') return;
+    window.addEventListener('beforeunload', () => {
+      try { sessionStorage.setItem(FLAG_KEY, '1'); } catch (e) {}
+    });
+    return; // end.html 自身は封鎖しない
+  }
 
-  // ─── done=1 を検知：画面を乗っ取る ──────────────────────────
+  // ─── 他ページ：フラグ確認 ─────────────────────────────────────
+  let reached = false;
+  try { reached = sessionStorage.getItem(FLAG_KEY) === '1'; } catch (e) {}
+  if (!reached) return;
+
+  // ─── フラグあり：DOMContentLoaded 後に画面を乗っ取る ──────────
   function takeover() {
     const style = document.createElement('style');
     style.textContent = `
@@ -48,6 +58,7 @@
         text-shadow: 0 0 16px rgba(255,43,43,0.5);
         opacity: 0;
         animation: gate-in 1.2s ease 0.4s forwards;
+        position: relative; z-index: 1;
       }
       #gate-btn {
         background: transparent;
@@ -81,7 +92,7 @@
         後戻りはできない。<br>
         お前はもう、そこには戻れない。
       </div>
-      <button id="gate-btn" onclick="location.href='end.html?done=1'">
+      <button id="gate-btn" onclick="location.href='end.html'">
         ▸ 最終ファイルへ戻る
       </button>
     `;
