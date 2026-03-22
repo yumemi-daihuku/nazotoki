@@ -155,6 +155,13 @@
 <script>
 'use strict';
 
+// ─── ブラウザバック封鎖 ──────────────────────────────────────────
+// ページ読み込み時にhistoryを積み、戻ろうとしても同じページに留まる
+history.pushState(null, '', location.href);
+window.addEventListener('popstate', () => {
+  history.pushState(null, '', location.href);
+});
+
 // ─── 聴取テキスト定義 ────────────────────────────────────────────
 const LINES = [
   { text: '調査員：本日はお時間をいただきありがとうございます。' },
