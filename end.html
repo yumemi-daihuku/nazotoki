@@ -249,9 +249,11 @@ MONOLOGUE.forEach((text, i) => {
   setTimeout(() => rawBottom(text, MONO_INTERVAL - 200), MONO_START + i * MONO_INTERVAL);
 });
 
-// step4: 独白が全部終わったら永続封印
+// step4: 独白が全部終わったら永続封印 + SEALフラグをsessionStorageに直接セット
 const SEAL_DELAY = MONO_START + MONOLOGUE.length * MONO_INTERVAL + 300;
 setTimeout(() => {
+  // gate.jsのラップを待たず直接セット（確実性のため）
+  try { sessionStorage.setItem('NAZOTOKI_END_SEALED', '1'); } catch (e) {}
   if (window.horrorSealForever) window.horrorSealForever();
 }, SEAL_DELAY);
 

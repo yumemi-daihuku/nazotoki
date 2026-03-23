@@ -2,15 +2,17 @@
 // ════════════════════════════════════════════════════════════════
 // gate.js — pageshow + sessionStorage 方式
 //
-// pageshow はブラウザバックによるキャッシュ復元時にも発火するため
-// 通常の読み込みとブラウザバックの両方を検知できる。
+// FLAG_KEY      : end.html に到達したフラグ
+// SEAL_FLAG_KEY : 独白完了（horrorSealForever呼び出し後）フラグ
+//                 このフラグがある場合はメッセージを差し替える
 // ════════════════════════════════════════════════════════════════
 
 (function () {
-  const FLAG_KEY = 'NAZOTOKI_END_REACHED';
-  const isEnd    = location.pathname.endsWith('end.html');
+  const FLAG_KEY      = 'NAZOTOKI_END_REACHED';
+  const SEAL_FLAG_KEY = 'NAZOTOKI_END_SEALED';
+  const isEnd         = location.pathname.endsWith('end.html');
 
-  // ─── end.html：表示された瞬間にフラグをセット ─────────────────
+  // ─── end.html：フラグをセット ─────────────────────────────────
   if (isEnd) {
     function setFlag() {
       try { sessionStorage.setItem(FLAG_KEY, '1'); } catch (e) {}
@@ -18,15 +20,35 @@
     setFlag();
     window.addEventListener('pageshow', setFlag);
     window.addEventListener('beforeunload', setFlag);
+
+    // horrorSealForever が呼ばれた時に SEAL_FLAG_KEY もセット
+    const _origSeal = window.horrorSealForever;
+    window.horrorSealForever = function () {
+      try { sessionStorage.setItem(SEAL_FLAG_KEY, '1'); } catch (e) {}
+      if (_origSeal) _origSeal();
+    };
     return;
   }
 
-  // ─── 他ページ：封鎖チェック関数 ──────────────────────────────
+  // ─── 他ページ：封鎖チェック ───────────────────────────────────
   function checkAndLock() {
     let reached = false;
     try { reached = sessionStorage.getItem(FLAG_KEY) === '1'; } catch (e) {}
     if (!reached) return;
-    if (document.getElementById('gate-overlay')) return; // 二重表示防止
+    if (document.getElementById('gate-overlay')) return;
+
+    // 独白完了フラグの確認
+    let sealed = false;
+    try { sealed = sessionStorage.getItem(SEAL_FLAG_KEY) === '1'; } catch (e) {}
+
+    // メッセージ・ボタンラベルを状態で出し分け
+    const msg = sealed
+      ? '戻っても、もう意味はない。<br>……せいぜい、鏡に気を付けるんだな。'
+      : '後戻りはできない。<br>お前はもう、ここには戻れない。';
+
+    const btnLabel = sealed
+      ? '▸ 最後をもう一度見る'
+      : '▸ 最終ファイルへ戻る';
 
     const style = document.createElement('style');
     style.textContent = `
@@ -83,13 +105,8 @@
     const overlay = document.createElement('div');
     overlay.id = 'gate-overlay';
     overlay.innerHTML = `
-      <div id="gate-msg">
-        後戻りはできない。<br>
-        お前はもう、ここには戻れない。
-      </div>
-      <button id="gate-btn" onclick="location.href='end.html'">
-        ▸ 最終ファイルへ戻る
-      </button>
+      <div id="gate-msg">${msg}</div>
+      <button id="gate-btn" onclick="location.href='end.html'">${btnLabel}</button>
     `;
     document.body.appendChild(overlay);
     document.body.style.overflow = 'hidden';
@@ -97,17 +114,12 @@
     overlay.style.pointerEvents = 'all';
   }
 
-  // 通常の読み込み時
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', checkAndLock);
   } else {
     checkAndLock();
   }
 
-  // ブラウザバックによるキャッシュ復元時（persisted=true の時がBFCache）
-  window.addEventListener('pageshow', function (e) {
-    checkAndLock();
-  });
+  window.addEventListener('pageshow', checkAndLock);
 
 })();
-
