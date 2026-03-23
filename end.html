@@ -252,9 +252,36 @@ MONOLOGUE.forEach((text, i) => {
 // step4: 独白が全部終わったら永続封印 + SEALフラグをsessionStorageに直接セット
 const SEAL_DELAY = MONO_START + MONOLOGUE.length * MONO_INTERVAL + 300;
 setTimeout(() => {
-  // gate.jsのラップを待たず直接セット（確実性のため）
   try { sessionStorage.setItem('NAZOTOKI_END_SEALED', '1'); } catch (e) {}
   if (window.horrorSealForever) window.horrorSealForever();
+
+  // ─── 封印完了後：離脱しようとした時だけ「さようなら」を表示 ───
+  // rawBottomでsilencedをバイパスして強制表示
+  let farewellShown = false;
+
+  function showFarewell() {
+    if (farewellShown) return;
+    farewellShown = true;
+    rawBottom('さようなら。今度は黄泉で会おう。', 5000);
+    // 一度表示したら少し後にリセット（何度でも出るように）
+    setTimeout(() => { farewellShown = false; }, 6000);
+  }
+
+  // PC：マウスが画面上端からブラウザUIへ出た時
+  document.addEventListener('mouseleave', e => {
+    if (e.clientY <= 10) showFarewell();
+  });
+
+  // スマホ：画面上端からのスワイプアップ
+  let _ty = 0;
+  document.addEventListener('touchstart', e => {
+    _ty = e.touches[0].clientY;
+  }, { passive: true });
+  document.addEventListener('touchend', e => {
+    const dy = _ty - e.changedTouches[0].clientY;
+    if (_ty < 30 && dy > 60) showFarewell();
+  }, { passive: true });
+
 }, SEAL_DELAY);
 
 // step5: フッター・クレジット・リスタートを独白後に表示
