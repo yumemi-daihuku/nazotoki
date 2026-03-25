@@ -221,7 +221,7 @@
       </p>
       <p>
         当該事案に関与した人物は計
-        <span class="digit-reveal" id="d1">7</span>
+        <span class="digit-reveal" id="d1" data-base="7">7</span>
         名。そのうち
         <span class="digit-reveal" id="d2">5</span>
         名が現在も行方不明。残る2名（大沼・水口）の証言は互いに矛盾しており、信頼性は低い。
@@ -395,18 +395,20 @@ const digitObserver = new IntersectionObserver(entries => {
 // ── 関与者数：7(固定被害者) + VIEWER数でリアルタイム更新
 // horror.jsのDOM生成が完了してからheader-viewerを参照する必要があるためloadで遅延
 window.addEventListener('load', function () {
-  const el = document.getElementById('report-count');
-  if (!el) return;
-
   function update() {
     const viewerEl = document.getElementById('header-viewer');
-    if (!viewerEl) {
-      el.textContent = '8'; // フォールバック
-      return;
+    const viewer = viewerEl ? (parseInt((viewerEl.textContent.match(/\d+/) || ['1'])[0], 10)) : 1;
+
+    // 関与者数（report-count）
+    const rc = document.getElementById('report-count');
+    if (rc) rc.textContent = 7 + viewer;
+
+    // 「計〇名」のd1も同様に更新（data-baseの値 + viewer）
+    const d1 = document.getElementById('d1');
+    if (d1) {
+      const base = parseInt(d1.dataset.base || '7', 10);
+      d1.textContent = base + viewer;
     }
-    const match = viewerEl.textContent.match(/\d+/);
-    if (!match) return;
-    el.textContent = 7 + parseInt(match[0], 10);
   }
 
   // 初回更新
